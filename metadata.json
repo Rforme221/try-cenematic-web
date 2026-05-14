@@ -1,0 +1,8 @@
+{
+  "name": "Phantom X Hero",
+  "description": "A cinematic, GSAP-powered hero section for the ASUS ROG Phantom X gaming laptop.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
