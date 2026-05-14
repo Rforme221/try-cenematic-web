@@ -7,55 +7,39 @@ import laptopImg from '../assets/laptop.png';
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const laptopRef = useRef<HTMLDivElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
   const glowRedRef = useRef<HTMLDivElement>(null);
   const glowPurpleRef = useRef<HTMLDivElement>(null);
   const glowBlueRef = useRef<HTMLDivElement>(null);
+  const scanlineRef = useRef<HTMLDivElement>(null);
+  const scanlineLineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Staggered Text Reveal
-      if (headlineRef.current) {
-        const originalText = "Built For Impossible Frames.";
-        const characters = originalText.split('').map((char) => {
-          const span = document.createElement('span');
-          span.innerText = char === ' ' ? '\u00A0' : char;
-          span.style.display = 'inline-block';
-          span.style.opacity = '0';
-          span.style.transform = 'translateY(40px) scale(0.95)';
-          span.style.filter = 'blur(4px)';
-          return span;
-        });
+      const masterTl = gsap.timeline();
 
-        headlineRef.current.innerHTML = '';
-        characters.forEach((span) => headlineRef.current?.appendChild(span));
-
-        gsap.to(characters, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          filter: 'blur(0px)',
-          stagger: 0.03,
-          duration: 1.2,
-          ease: 'power4.out',
-          delay: 0.8,
-        });
+      // 1. Scanline Sweep Animation
+      if (scanlineRef.current && scanlineLineRef.current) {
+        masterTl.set(scanlineRef.current, { opacity: 1 });
+        masterTl.fromTo(scanlineLineRef.current, 
+          { y: '-10vh' }, 
+          { y: '115vh', duration: 1.2, ease: "power1.inOut" }
+        );
+        masterTl.to(scanlineRef.current, { opacity: 0, duration: 0.4, ease: "power2.out" });
       }
 
-      // 2. Laptop Entrance & Floating
+      // 2. Laptop Entrance
       if (laptopRef.current) {
-        // Entrance: Float up from below
-        gsap.fromTo(
+        masterTl.fromTo(
           laptopRef.current,
-          { y: 100, opacity: 0, scale: 0.95 },
+          { y: 80, opacity: 0, scale: 0.95 },
           {
             y: 0,
             opacity: 1,
             scale: 1,
-            duration: 1.8,
-            ease: 'power3.out',
-            delay: 0.2,
-          }
+            duration: 1.5,
+            ease: "power3.out",
+          },
+          "-=0.5"
         );
 
         // Continuous Idle Float
@@ -65,7 +49,7 @@ export default function Hero() {
           repeat: -1,
           yoyo: true,
           ease: 'sine.inOut',
-          delay: 2,
+          delay: 3,
         });
       }
 
@@ -150,6 +134,20 @@ export default function Hero() {
     >
       <BackgroundCanvas />
 
+      {/* Scanline Sweep Overlay */}
+      <div 
+        ref={scanlineRef}
+        className="fixed inset-0 z-50 pointer-events-none opacity-0"
+        style={{
+          background: 'repeating-linear-gradient(rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 4px)'
+        }}
+      >
+        <div 
+          ref={scanlineLineRef}
+          className="absolute w-full h-[2px] bg-white opacity-15 shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+        />
+      </div>
+
       {/* Radial Glows */}
       <div 
         ref={glowRedRef}
@@ -168,12 +166,12 @@ export default function Hero() {
       />
 
       {/* Content Container */}
-      <div className="relative z-10 flex flex-col items-center max-w-7xl px-4 w-full h-full justify-center">
+      <div className="relative z-30 flex flex-col items-center max-w-7xl px-4 w-full h-full justify-center">
         {/* Laptop Asset */}
         <div 
           ref={laptopRef}
           id="laptop-container"
-          className="relative w-full max-w-3xl px-8 will-change-transform"
+          className="relative w-full max-w-[280px] sm:max-w-md md:max-w-2xl lg:max-w-3xl px-4 will-change-transform"
           style={{ transformStyle: 'preserve-3d' }}
         >
           <img
@@ -184,42 +182,31 @@ export default function Hero() {
           />
           
           {/* Decorative Accent Labels */}
-          <div className="absolute -bottom-16 left-12 flex flex-col gap-1">
-            <span className="text-[9px] text-white/30 uppercase tracking-[0.3em] font-mono">Serial: Phantom-X-9000</span>
-            <span className="text-[9px] text-white/30 uppercase tracking-[0.3em] font-mono">Engineered in Neo-Tokyo</span>
+          <div className="absolute -bottom-12 sm:-bottom-16 left-4 lg:left-12 flex flex-col gap-1">
+            <span className="text-[7px] sm:text-[9px] text-white/40 uppercase tracking-[0.3em] font-mono whitespace-nowrap">Serial: Phantom-X-9000</span>
+            <span className="text-[7px] sm:text-[9px] text-white/40 uppercase tracking-[0.3em] font-mono whitespace-nowrap">Engineered in Neo-Tokyo</span>
           </div>
-          <div className="absolute -bottom-16 right-12 text-right">
-             <span className="text-red-600/80 text-[10px] font-bold uppercase tracking-[0.5em] animate-pulse">Neural Link Active</span>
+          <div className="absolute -bottom-12 sm:-bottom-16 right-4 lg:right-12 text-right">
+             <span className="text-red-600 text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.3em] sm:tracking-[0.5em] animate-pulse">Neural Link Active</span>
           </div>
-        </div>
-
-        {/* Headline */}
-        <div className="mt-20 overflow-visible flex justify-center">
-          <h1 
-            ref={headlineRef}
-            id="hero-headline"
-            className="text-white text-4xl md:text-7xl lg:text-8xl font-bold tracking-tight text-center select-none leading-none"
-          >
-            Built For Impossible Frames.
-          </h1>
         </div>
         
         {/* Branding */}
-        <div className="absolute top-10 left-10 flex flex-col gap-2">
-            <div className="h-[2px] w-16 bg-red-600 mb-1" />
-            <span className="text-white/60 text-xs tracking-[0.8em] font-medium uppercase border-l border-white/20 pl-4 py-1">ROG // PHANTOM X</span>
+        <div className="absolute top-6 left-6 lg:top-12 lg:left-12 flex flex-col gap-2 lg:gap-3 group">
+            <div className="h-[1px] lg:h-[2px] w-8 lg:w-16 bg-red-600 lg:mb-1 group-hover:w-24 transition-all duration-500" />
+            <span className="text-white/70 text-[8px] lg:text-xs tracking-[0.6em] lg:tracking-[0.8em] font-medium uppercase border-l border-white/20 pl-3 lg:pl-4 py-1">ROG // PHANTOM X</span>
         </div>
         
         {/* Technical Specs Footer (Decorative) */}
-        <div className="absolute bottom-10 flex gap-12 text-[10px] text-white/20 uppercase tracking-widest font-mono">
-            <div className="flex flex-col"><span className="text-white/40">Refresh</span> 360Hz</div>
-            <div className="flex flex-col"><span className="text-white/40">Latency</span> 1.2ms</div>
-            <div className="flex flex-col"><span className="text-white/40">Thermal</span> Vapor Chamber</div>
+        <div className="absolute bottom-10 flex gap-4 sm:gap-8 lg:gap-16 text-[7px] sm:text-[10px] text-white/30 uppercase tracking-[0.1em] sm:tracking-widest font-mono">
+            <div className="flex flex-col items-center sm:items-start"><span className="text-white/50 mb-0.5 sm:mb-1">Refresh</span> <span className="text-white">360Hz</span></div>
+            <div className="flex flex-col items-center sm:items-start"><span className="text-white/50 mb-0.5 sm:mb-1">Latency</span> <span className="text-white">1.2ms</span></div>
+            <div className="flex flex-col items-center sm:items-start"><span className="text-white/50 mb-0.5 sm:mb-1">Thermal</span> <span className="text-white text-center sm:text-left">Vapor Chamber</span></div>
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none opacity-40">
-            <span className="text-[8px] tracking-[0.6em] text-white uppercase font-bold">Scroll</span>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none opacity-50">
+            <span className="text-[8px] tracking-[0.6em] text-white/80 uppercase font-bold">Scroll</span>
             <ChevronDown className="w-5 h-5 text-white animate-bounce" strokeWidth={1.5} />
         </div>
       </div>
